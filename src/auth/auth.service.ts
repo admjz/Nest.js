@@ -15,29 +15,29 @@ export class AuthService {
     private readonly config: ConfigService
   ) { }
 
-    async signUp(dto: AuthDto): Promise<Msg> {
-      const hashed = await bcrypt.hash(dto.password, 12)
+  async signUp(dto: AuthDto): Promise<Msg> {
+    const hashed = await bcrypt.hash(dto.password, 12)
 
-      try {
-        await this.prisma.user.create({
-          data: {
-            email: dto.email,
-            hashedPassword: hashed
-          }
-        });
+    try {
+      await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          hashedPassword: hashed
+        }
+      });
 
-        return {
-          message: 'OK!'
-        }
-      } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === 'P2002') {
-            throw new ForbiddenException('このメールアドレスは既に存在しています。')
-          }
-        }
-        throw error;
+      return {
+        message: 'OK!'
       }
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('このメールアドレスは既に存在しています。')
+        }
+      }
+      throw error;
     }
+  }
 
   async login(dto: AuthDto) {
     const user = await this.prisma.user.findUnique({
